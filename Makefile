@@ -85,6 +85,51 @@ rebuild_cache:
 rebuild_cache/fast: rebuild_cache
 .PHONY : rebuild_cache/fast
 
+# Special rule for the target list_install_components
+list_install_components:
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Available install components are: \"Unspecified\""
+.PHONY : list_install_components
+
+# Special rule for the target list_install_components
+list_install_components/fast: list_install_components
+.PHONY : list_install_components/fast
+
+# Special rule for the target install
+install: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install
+
+# Special rule for the target install
+install/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install/fast
+
+# Special rule for the target install/local
+install/local: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local
+
+# Special rule for the target install/local
+install/local/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local/fast
+
+# Special rule for the target install/strip
+install/strip: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing the project stripped..."
+	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip
+
+# Special rule for the target install/strip
+install/strip/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing the project stripped..."
+	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip/fast
+
 # The main all target
 all: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start /workspaces/fcef/CMakeFiles /workspaces/fcef//CMakeFiles/progress.marks
@@ -116,6 +161,189 @@ depend:
 	$(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
+#=============================================================================
+# Target rules for targets named fcef
+
+# Build rule for target.
+fcef: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 fcef
+.PHONY : fcef
+
+# fast build rule for target.
+fcef/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fcef.dir/build.make CMakeFiles/fcef.dir/build
+.PHONY : fcef/fast
+
+#=============================================================================
+# Target rules for targets named fcef-dump
+
+# Build rule for target.
+fcef-dump: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 fcef-dump
+.PHONY : fcef-dump
+
+# fast build rule for target.
+fcef-dump/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fcef-dump.dir/build.make CMakeFiles/fcef-dump.dir/build
+.PHONY : fcef-dump/fast
+
+#=============================================================================
+# Target rules for targets named test_basic
+
+# Build rule for target.
+test_basic: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_basic
+.PHONY : test_basic
+
+# fast build rule for target.
+test_basic/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_basic.dir/build.make CMakeFiles/test_basic.dir/build
+.PHONY : test_basic/fast
+
+src/format/fcef_reader.o: src/format/fcef_reader.c.o
+.PHONY : src/format/fcef_reader.o
+
+# target to build an object file
+src/format/fcef_reader.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fcef.dir/build.make CMakeFiles/fcef.dir/src/format/fcef_reader.c.o
+.PHONY : src/format/fcef_reader.c.o
+
+src/format/fcef_reader.i: src/format/fcef_reader.c.i
+.PHONY : src/format/fcef_reader.i
+
+# target to preprocess a source file
+src/format/fcef_reader.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fcef.dir/build.make CMakeFiles/fcef.dir/src/format/fcef_reader.c.i
+.PHONY : src/format/fcef_reader.c.i
+
+src/format/fcef_reader.s: src/format/fcef_reader.c.s
+.PHONY : src/format/fcef_reader.s
+
+# target to generate assembly for a file
+src/format/fcef_reader.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fcef.dir/build.make CMakeFiles/fcef.dir/src/format/fcef_reader.c.s
+.PHONY : src/format/fcef_reader.c.s
+
+src/format/fcef_validator.o: src/format/fcef_validator.c.o
+.PHONY : src/format/fcef_validator.o
+
+# target to build an object file
+src/format/fcef_validator.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fcef.dir/build.make CMakeFiles/fcef.dir/src/format/fcef_validator.c.o
+.PHONY : src/format/fcef_validator.c.o
+
+src/format/fcef_validator.i: src/format/fcef_validator.c.i
+.PHONY : src/format/fcef_validator.i
+
+# target to preprocess a source file
+src/format/fcef_validator.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fcef.dir/build.make CMakeFiles/fcef.dir/src/format/fcef_validator.c.i
+.PHONY : src/format/fcef_validator.c.i
+
+src/format/fcef_validator.s: src/format/fcef_validator.c.s
+.PHONY : src/format/fcef_validator.s
+
+# target to generate assembly for a file
+src/format/fcef_validator.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fcef.dir/build.make CMakeFiles/fcef.dir/src/format/fcef_validator.c.s
+.PHONY : src/format/fcef_validator.c.s
+
+src/format/fcef_writer.o: src/format/fcef_writer.c.o
+.PHONY : src/format/fcef_writer.o
+
+# target to build an object file
+src/format/fcef_writer.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fcef.dir/build.make CMakeFiles/fcef.dir/src/format/fcef_writer.c.o
+.PHONY : src/format/fcef_writer.c.o
+
+src/format/fcef_writer.i: src/format/fcef_writer.c.i
+.PHONY : src/format/fcef_writer.i
+
+# target to preprocess a source file
+src/format/fcef_writer.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fcef.dir/build.make CMakeFiles/fcef.dir/src/format/fcef_writer.c.i
+.PHONY : src/format/fcef_writer.c.i
+
+src/format/fcef_writer.s: src/format/fcef_writer.c.s
+.PHONY : src/format/fcef_writer.s
+
+# target to generate assembly for a file
+src/format/fcef_writer.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fcef.dir/build.make CMakeFiles/fcef.dir/src/format/fcef_writer.c.s
+.PHONY : src/format/fcef_writer.c.s
+
+src/lib/fcef.o: src/lib/fcef.c.o
+.PHONY : src/lib/fcef.o
+
+# target to build an object file
+src/lib/fcef.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fcef.dir/build.make CMakeFiles/fcef.dir/src/lib/fcef.c.o
+.PHONY : src/lib/fcef.c.o
+
+src/lib/fcef.i: src/lib/fcef.c.i
+.PHONY : src/lib/fcef.i
+
+# target to preprocess a source file
+src/lib/fcef.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fcef.dir/build.make CMakeFiles/fcef.dir/src/lib/fcef.c.i
+.PHONY : src/lib/fcef.c.i
+
+src/lib/fcef.s: src/lib/fcef.c.s
+.PHONY : src/lib/fcef.s
+
+# target to generate assembly for a file
+src/lib/fcef.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fcef.dir/build.make CMakeFiles/fcef.dir/src/lib/fcef.c.s
+.PHONY : src/lib/fcef.c.s
+
+src/tools/fcef-dump.o: src/tools/fcef-dump.c.o
+.PHONY : src/tools/fcef-dump.o
+
+# target to build an object file
+src/tools/fcef-dump.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fcef-dump.dir/build.make CMakeFiles/fcef-dump.dir/src/tools/fcef-dump.c.o
+.PHONY : src/tools/fcef-dump.c.o
+
+src/tools/fcef-dump.i: src/tools/fcef-dump.c.i
+.PHONY : src/tools/fcef-dump.i
+
+# target to preprocess a source file
+src/tools/fcef-dump.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fcef-dump.dir/build.make CMakeFiles/fcef-dump.dir/src/tools/fcef-dump.c.i
+.PHONY : src/tools/fcef-dump.c.i
+
+src/tools/fcef-dump.s: src/tools/fcef-dump.c.s
+.PHONY : src/tools/fcef-dump.s
+
+# target to generate assembly for a file
+src/tools/fcef-dump.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fcef-dump.dir/build.make CMakeFiles/fcef-dump.dir/src/tools/fcef-dump.c.s
+.PHONY : src/tools/fcef-dump.c.s
+
+tests/unit/test_basic.o: tests/unit/test_basic.c.o
+.PHONY : tests/unit/test_basic.o
+
+# target to build an object file
+tests/unit/test_basic.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_basic.dir/build.make CMakeFiles/test_basic.dir/tests/unit/test_basic.c.o
+.PHONY : tests/unit/test_basic.c.o
+
+tests/unit/test_basic.i: tests/unit/test_basic.c.i
+.PHONY : tests/unit/test_basic.i
+
+# target to preprocess a source file
+tests/unit/test_basic.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_basic.dir/build.make CMakeFiles/test_basic.dir/tests/unit/test_basic.c.i
+.PHONY : tests/unit/test_basic.c.i
+
+tests/unit/test_basic.s: tests/unit/test_basic.c.s
+.PHONY : tests/unit/test_basic.s
+
+# target to generate assembly for a file
+tests/unit/test_basic.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_basic.dir/build.make CMakeFiles/test_basic.dir/tests/unit/test_basic.c.s
+.PHONY : tests/unit/test_basic.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -123,7 +351,32 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... edit_cache"
+	@echo "... install"
+	@echo "... install/local"
+	@echo "... install/strip"
+	@echo "... list_install_components"
 	@echo "... rebuild_cache"
+	@echo "... fcef"
+	@echo "... fcef-dump"
+	@echo "... test_basic"
+	@echo "... src/format/fcef_reader.o"
+	@echo "... src/format/fcef_reader.i"
+	@echo "... src/format/fcef_reader.s"
+	@echo "... src/format/fcef_validator.o"
+	@echo "... src/format/fcef_validator.i"
+	@echo "... src/format/fcef_validator.s"
+	@echo "... src/format/fcef_writer.o"
+	@echo "... src/format/fcef_writer.i"
+	@echo "... src/format/fcef_writer.s"
+	@echo "... src/lib/fcef.o"
+	@echo "... src/lib/fcef.i"
+	@echo "... src/lib/fcef.s"
+	@echo "... src/tools/fcef-dump.o"
+	@echo "... src/tools/fcef-dump.i"
+	@echo "... src/tools/fcef-dump.s"
+	@echo "... tests/unit/test_basic.o"
+	@echo "... tests/unit/test_basic.i"
+	@echo "... tests/unit/test_basic.s"
 .PHONY : help
 
 

@@ -1,0 +1,10 @@
+bin/
+lib/
+CMakeFiles/
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+.DS_Store
+*.log
