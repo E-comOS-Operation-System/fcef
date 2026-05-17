@@ -119,6 +119,9 @@ typedef struct fcef_file {
     uint32_t base_address;
 } fcef_file_t;
 
+// Loaded executable structure forward declaration
+typedef struct fcef_loaded_exec fcef_loaded_exec_t;
+
 // API Functions
 fcef_file_t* fcef_open(const char *filename);
 fcef_file_t* fcef_create(uint8_t arch, uint16_t version);
@@ -151,6 +154,11 @@ bool fcef_relocate(fcef_file_t *file, void *memory, uint32_t base_address);
 
 bool fcef_update_crc32(fcef_file_t *file);
 
+// Loader functions
+fcef_loaded_exec_t* fcef_load_executable(fcef_file_t *file);
+int fcef_execute(fcef_loaded_exec_t *exec);
+void fcef_unload_executable(fcef_loaded_exec_t *exec);
+int fcef_load_and_execute_file(const char *filename);
 
 void fcef_set_entry_point(fcef_file_t *file, uint32_t entry_point);
 // uint64_t fcef_get_entry_point(fcef_file_t *file);
