@@ -382,7 +382,7 @@ help:
 CC=gcc
 CFLAGS=-Wall -Wextra -std=c99 -I./include
 LDFLAGS=
-SOURCES=src/format/fcef_reader.c src/format/fcef_validator.c src/format/fcef_writer.c src/format/fcef_loader.c
+SOURCES=src/format/fcef_reader.c src/format/fcef_validator.c src/format/fcef_writer.c src/format/fcef_loader.c src/format/fcef_symbol.c src/format/fcef_dynamic.c
 OBJECTS=$(SOURCES:.c=.o)
 TARGET=libfcef.a
 EXAMPLE=examples/hello.c

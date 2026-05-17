@@ -154,6 +154,11 @@ bool fcef_relocate(fcef_file_t *file, void *memory, uint32_t base_address);
 
 bool fcef_update_crc32(fcef_file_t *file);
 
+// Dynamic linking functions
+bool fcef_add_dynamic_entry(fcef_file_t *file, uint32_t tag, uint32_t val);
+bool fcef_add_required_library(fcef_file_t *file, const char *lib_name);
+bool fcef_get_required_libraries(fcef_file_t *file, const char ***libs, uint32_t *count);
+
 // Loader functions
 fcef_loaded_exec_t* fcef_load_executable(fcef_file_t *file);
 int fcef_execute(fcef_loaded_exec_t *exec);

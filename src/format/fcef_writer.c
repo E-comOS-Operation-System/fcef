@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 // Internal context for writing
 typedef struct {
@@ -142,13 +143,14 @@ static bool write_context_align(write_context_t *ctx, size_t alignment) {
  * @brief Create a new FCEF file
  * 
  * @param arch Architecture identifier
- * @param version_major Major version
- * @param version_minor Minor version
+ * @param version Version number (combined major and minor)
  * @return fcef_file_t* New file handle, or NULL on error
  */
-/*fcef_file_t* fcef_create(uint8_t arch, uint8_t version_minor) {
+fcef_file_t* fcef_create(uint8_t arch, uint16_t version) {
+    // Create write context with initial capacity
     write_context_t *ctx = write_context_create(4096);
     if (!ctx) {
+        fprintf(stderr, "Error: Failed to create write context\n");
         return NULL;
     }
     
@@ -179,13 +181,12 @@ static bool write_context_align(write_context_t *ctx, size_t alignment) {
     file->allocated = true;
     file->base_address = 0;
     
-    free(ctx);
-    
     // Initialize header
     file->header->magic = FCEF_MAGIC;
     file->header->arch = arch;
-    file->header->version_major = version_major;
-    file->header->version_minor = version_minor;
+    file->header->version = version;
+    file->header->version_major = (version >> 8) & 0xFF;
+    file->header->version_minor = version & 0xFF;
     file->header->entry_point = 0;
     file->header->phoff = sizeof(fcef_header_t);  // Program headers start after header
     file->header->shoff = 0;  // No section headers yet
@@ -196,8 +197,11 @@ static bool write_context_align(write_context_t *ctx, size_t alignment) {
     file->header->crc32 = 0;  // Will be calculated later
     file->header->file_size = file->size;
     
+    // Clean up temporary context
+    free(ctx);
+    
     return file;
-}*/ // We comment this out to avoid duplicate definition
+}
 
 /**
  * @brief Add a segment to an FCEF file
@@ -215,33 +219,88 @@ bool fcef_add_segment(fcef_file_t *file, const fcef_program_header_t *phdr,
         return false;
     }
     
-    // We need to reallocate the file buffer to add the segment
-    // This is a simplified implementation
+    // Calculate the size of the current program header table
+    size_t current_phdr_table_size = file->header->phnum * sizeof(fcef_program_header_t);
+    size_t new_phdr_table_size = (file->header->phnum + 1) * sizeof(fcef_program_header_t);
     
-    // Calculate new size
-    size_t new_size = file->size + data_size;
-    uint8_t *new_data = realloc(file->data, new_size);
+    // Calculate new total size - header + expanded program header table + new segment data
+    size_t new_size = file->size + sizeof(fcef_program_header_t) + data_size;
+    
+    // Allocate new buffer
+    uint8_t *new_data = malloc(new_size);
     if (!new_data) {
+        fprintf(stderr, "Error: Failed to allocate new buffer for segment addition\n");
         return false;
+    }
+    
+    // Copy the header
+    memcpy(new_data, file->data, sizeof(fcef_header_t));
+    
+    // Update header values in the new buffer
+    fcef_header_t *new_header = (fcef_header_t*)new_data;
+    new_header->phnum++;  // Increment program header count
+    // The phoff is already set correctly when file is created
+    new_header->file_size = new_size;
+    
+    // Copy existing program headers
+    if (current_phdr_table_size > 0) {
+        memcpy(new_data + sizeof(fcef_header_t), 
+               file->data + sizeof(fcef_header_t), // program headers start right after the file header
+               current_phdr_table_size);
+    }
+    
+    // Add the new program header
+    fcef_program_header_t *new_phdrs = (fcef_program_header_t*)(new_data + sizeof(fcef_header_t));
+    fcef_program_header_t new_phdr = *phdr;  // Copy the input header
+    
+    // Calculate the offset where this segment's data should be placed in the file
+    // It goes after the header + all program headers + all previous segment data
+    size_t segment_data_offset = sizeof(fcef_header_t) + new_phdr_table_size;
+    
+    // Copy all segment data from the original file
+    if (current_phdr_table_size > 0) {
+        // Find the minimum offset of any existing segment to know where segment data starts
+        size_t min_seg_offset = SIZE_MAX;
+        fcef_program_header_t *orig_phdrs = (fcef_program_header_t*)(file->data + sizeof(fcef_header_t));
+        for (uint32_t i = 0; i < file->header->phnum; i++) {
+            if (orig_phdrs[i].offset < min_seg_offset) {
+                min_seg_offset = orig_phdrs[i].offset;
+            }
+        }
+        
+        // If we had segment data, copy it
+        if (min_seg_offset < file->size) {
+            size_t seg_data_size = file->size - min_seg_offset;
+            memcpy(new_data + segment_data_offset, file->data + min_seg_offset, seg_data_size);
+        }
+    }
+    
+    // Add the new segment's data at the end of existing segment data
+    if (data && data_size > 0) {
+        size_t new_seg_data_offset = segment_data_offset + (file->size - (sizeof(fcef_header_t) + current_phdr_table_size));
+        memcpy(new_data + new_seg_data_offset, data, data_size);
+        
+        // Update the offset in the program header to point to the new location
+        new_phdr.offset = new_seg_data_offset;
+    } else {
+        // If no data is provided, still need to set the offset appropriately
+        size_t new_seg_data_offset = segment_data_offset + (file->size - (sizeof(fcef_header_t) + current_phdr_table_size));
+        new_phdr.offset = new_seg_data_offset;
+    }
+    
+    // Add the new program header to the table
+    new_phdrs[file->header->phnum - 1] = new_phdr;
+    
+    // Free old data if it was allocated
+    if (file->allocated && file->data) {
+        free(file->data);
     }
     
     // Update file structure
     file->data = new_data;
     file->size = new_size;
     file->header = (fcef_header_t*)file->data;
-    
-    // Copy segment data
-    uint32_t data_offset = file->size - data_size;
-    if (data && data_size > 0) {
-        memcpy(file->data + data_offset, data, data_size);
-    }
-    
-    // Update program header (we need to write it to the program header table)
-    // For now, we'll just update the count
-    file->header->phnum++;
-    
-    // Update file size in header
-    file->header->file_size = file->size;
+    file->allocated = true;
     
     return true;
 }
@@ -295,10 +354,37 @@ uint32_t fcef_add_string(fcef_file_t *file, const char *str) {
         return 0;
     }
     
-    // This is a simplified implementation
-    // In a real implementation, we would manage a string table section
+    // Find or create the string table section
+    // Look for an existing string table section
+    fcef_section_header_t *sections = fcef_get_section_headers(file);
+    fcef_section_header_t *strtab_section = NULL;
+    uint32_t strtab_idx = UINT32_MAX;
     
-    // For now, return a placeholder
+    if (sections) {
+        for (uint32_t i = 0; i < file->header->shnum; i++) {
+            const char *section_name = fcef_get_string(file, sections[i].name, 0);
+            if (section_name && strcmp(section_name, ".strtab") == 0) {
+                strtab_section = &sections[i];
+                strtab_idx = i;
+                break;
+            }
+        }
+    }
+    
+    // If no string table exists, create one
+    if (!strtab_section) {
+        // This is a simplified approach - in a real implementation we'd need to add sections properly
+        fprintf(stderr, "String table creation not fully implemented in this version\n");
+        return 0;
+    }
+    
+    // Find the string in the table to avoid duplicates
+    const char *strtab_data = (const char*)(file->data + strtab_section->offset);
+    uint32_t current_pos = strtab_section->size; // Start after existing strings including null terminator
+    
+    // Add string to the table (this is a simplified implementation)
+    // In a real implementation, we'd need to expand the section data
+    fprintf(stderr, "String table manipulation not fully implemented in this version\n");
     return 0;
 }
 
@@ -320,10 +406,28 @@ bool fcef_add_symbol(fcef_file_t *file, const char *name, uint32_t value,
         return false;
     }
     
-    // This is a placeholder implementation
-    // In a real implementation, we would add to a symbol table section
+    // Find or create the symbol table section
+    fcef_section_header_t *sections = fcef_get_section_headers(file);
+    fcef_section_header_t *symtab_section = NULL;
+    fcef_section_header_t *strtab_section = NULL;
+    uint32_t symtab_idx = UINT32_MAX;
     
-    return true;
+    if (sections) {
+        for (uint32_t i = 0; i < file->header->shnum; i++) {
+            const char *section_name = fcef_get_string(file, sections[i].name, 0);
+            if (section_name && strcmp(section_name, ".symtab") == 0) {
+                symtab_section = &sections[i];
+                symtab_idx = i;
+            } else if (section_name && strcmp(section_name, ".strtab") == 0) {
+                strtab_section = &sections[i];
+            }
+        }
+    }
+    
+    // If no symbol table exists, we'd need to create one
+    // This requires more complex section management that isn't fully implemented yet
+    fprintf(stderr, "Symbol table manipulation not fully implemented in this version\n");
+    return false;
 }
 
 /**
